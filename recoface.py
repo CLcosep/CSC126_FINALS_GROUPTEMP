@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import os
 
+# size parameter
 size = 4
 
 # Please customize the file path according to your system configuration 
@@ -50,15 +51,17 @@ face_cascade = cv2.CascadeClassifier(haar_file)
 webcam = cv2.VideoCapture(0)
 
 while True:
+    # capture and check frame
     ret, im = webcam.read()
     if not ret:
         print("Error: Failed to capture image")
         break
-    
+    # convert to grayscale
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
     
     for (x, y, w, h) in faces:
+        # draw shape extract region and resize face region
         cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 0), 2)
         face = gray[y:y + h, x:x + w]
         face_resize = cv2.resize(face, (width, height))
@@ -66,12 +69,13 @@ while True:
         # Try to recognize the face
         prediction, confidence = model.predict(face_resize)
         
+        # draw shape with text for result
         cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 3)
         if confidence < 500:
             cv2.putText(im, f'{names[prediction]} - {confidence:.0f}', (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
         else:
             cv2.putText(im, 'not recognized', (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
-    
+    # display
     cv2.imshow('OpenCV', im)
     
     key = cv2.waitKey(10)
